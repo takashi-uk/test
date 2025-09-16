@@ -1,0 +1,97 @@
+name: Config-driven DB Copy Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_key:
+        description: "Config key for source (e.g. DatabaseA)"
+        required: true
+      target_key:
+        description: "Config key for target (e.g. DatabaseAcopy)"
+        required: true
+
+jobs:
+  db-copy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq postgresql-client
+
+    - name: Load config and set environment variables
+      id: config
+      run: |
+        source_key="${{ github.event.inputs.source_key }}"
+        target_key="${{ github.event.inputs.target_key }}"
+        config_file=".github/config/dbs.json"
+
+        # Extract source and target configuration from dbs.json
+        source=$(jq -c ".[] | select(.key==\"$source_key\")" $config_file)
+        target=$(jq -c ".[] | select(.key==\"$target_key\")" $config_file)
+
+        # Set environment variables for source database
+        echo "SOURCE_HOST=$(echo $source | jq -r '.host')" >> $GITHUB_ENV
+        echo "SOURCE_USER=$(echo $source | jq -r '.user')" >> $GITHUB_ENV
+        echo "SOURCE_DB=$(echo $source | jq -r '.db_name')" >> $GITHUB_ENV
+        echo "SOURCE_RG=$(echo $source | jq -r '.resource_group')" >> $GITHUB_ENV
+        echo "SOURCE_SERVER=$(echo $source | jq -r '.server_name')" >> $GITHUB_ENV
+        echo "SOURCE_PASSWORD_SECRET=$(echo $source | jq -r '.password_secret')" >> $GITHUB_ENV
+
+        # Set environment variables for target database
+        echo "TARGET_HOST=$(echo $target | jq -r '.host')" >> $GITHUB_ENV
+        echo "TARGET_USER=$(echo $target | jq -r '.user')" >> $GITHUB_ENV
+        echo "TARGET_DB=$(echo $target | jq -r '.db_name')" >> $GITHUB_ENV
+        echo "TARGET_RG=$(echo $target | jq -r '.resource_group')" >> $GITHUB_ENV
+        echo "TARGET_SERVER=$(echo $target | jq -r '.server_name')" >> $GITHUB_ENV
+        echo "TARGET_PASSWORD_SECRET=$(echo $target | jq -r '.password_secret')" >> $GITHUB_ENV
+
+    - name: Azure CLI Login
+      run: |
+        # Login to Azure using GitHub Secrets
+        az login --service-principal \
+          -u ${{ secrets.AZURE_CLIENT_ID }} \
+          -p ${{ secrets.AZURE_CLIENT_SECRET }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Delete and recreate target database
+      run: |
+        # Delete the target database if it exists, then create a new empty target database
+        az postgres flexible-server db delete \
+          --resource-group "${{ env.TARGET_RG }}" \
+          --server-name "${{ env.TARGET_SERVER }}" \
+          --name "${{ env.TARGET_DB }}" \
+          --yes || true
+
+        az postgres flexible-server db create \
+          --resource-group "${{ env.TARGET_RG }}" \
+          --server-name "${{ env.TARGET_SERVER }}" \
+          --database-name "${{ env.TARGET_DB }}"
+
+    - name: Dump source database
+      run: |
+        # Dump the source database using pg_dump
+        export PGPASSWORD="${{ secrets[env.SOURCE_PASSWORD_SECRET] }}"
+        pg_dump \
+          --no-owner \
+          --host="${{ env.SOURCE_HOST }}" \
+          --username="${{ env.SOURCE_USER }}" \
+          --dbname="${{ env.SOURCE_DB }}" \
+          --format=custom \
+          --file="backup.dump"
+
+    - name: Restore dump to target database
+      run: |
+        # Restore the dump to the target database using pg_restore
+        export PGPASSWORD="${{ secrets[env.TARGET_PASSWORD_SECRET] }}"
+        pg_restore \
+          --host="${{ env.TARGET_HOST }}" \
+          --username="${{ env.TARGET_USER }}" \
+          --dbname="${{ env.TARGET_DB }}" \
+          --no-owner \
+          --clean \
+          "backup.dump"

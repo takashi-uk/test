@@ -1,0 +1,39 @@
+name: Multi DB Copy
+
+on:
+  workflow_dispatch:
+    inputs:
+      db_keys:
+        description: "Comma-separated DB keys to copy"
+        required: true
+        default: "db1,db2"
+      source_db:
+        description: "Source DB name"
+        required: true
+        default: "source_db"
+      target_db_prefix:
+        description: "Prefix for target DB names"
+        required: true
+        default: "copy_"
+
+jobs:
+  multi-copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Split keys
+        id: split_keys
+        run: |
+          IFS=',' read -ra KEYS_ARRAY <<< "${{ github.event.inputs.db_keys }}"
+          echo "KEYS=${KEYS_ARRAY[*]}" >> $GITHUB_ENV
+
+      - name: Copy DBs
+        run: |
+          for KEY in $KEYS; do
+            TARGET_DB="${{ github.event.inputs.target_db_prefix }}$KEY"
+            echo "Copying DB for key $KEY → $TARGET_DB"
+            gh workflow run db-copy.yml \
+              -f db_key=$KEY \
+              -f source_db=${{ github.event.inputs.source_db }} \
+              -f target_db=$TARGET_DB \
+              -R ${{ github.repository }}
+          done
