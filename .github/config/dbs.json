@@ -7,7 +7,7 @@
     "resource_group": "Common",
     "server_name": "rosteringdevsvr14",
     "db_name": "TenantsDB_Dev",
-    "password_secret": "hxeCbF3@0hoO"
+    "password_secret": "SVR14_PASSWORD_SECRET"
   },
   {
     "key": "DatabaseAcopy",
@@ -17,6 +17,6 @@
     "resource_group": "Takashi",
     "server_name": "rosteringdevsvr14copy",
     "db_name": "TenantsDB_Dev",
-    "password_secret": "hxeCbF3@0hoO"
+    "password_secret": "SVR14COPY_PASSWORD_SECRET"
   }
 ]
