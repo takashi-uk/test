@@ -15,6 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      SERVER_NAME: ${{ secrets.SERVER_NAME }}
+      SOURCE_HOST: ${{ secrets.SOURCE_HOST }}
+      SOURCE_USER: ${{ secrets.SOURCE_USER }}
+      SOURCE_PASSWORD: ${{ secrets.SOURCE_PASSWORD }}
+      TARGET_HOST: ${{ secrets.TARGET_HOST }}
+      TARGET_USER: ${{ secrets.TARGET_USER }}
+      TARGET_PASSWORD: ${{ secrets.TARGET_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -31,25 +39,25 @@ jobs:
 
       - name: Delete and Recreate Target DB
         run: |
-          RESOURCE_GROUP="your-resource-group"
-          SERVER_NAME="your-server-name"
           TARGET_DB="${{ github.event.inputs.target_key }}"
           az postgres flexible-server db delete \
-            --resource-group $RESOURCE_GROUP \
-            --server-name $SERVER_NAME \
-            --database-name $TARGET_DB \
+            --resource-group "$RESOURCE_GROUP" \
+            --server-name "$SERVER_NAME" \
+            --database-name "$TARGET_DB" \
             --yes
           az postgres flexible-server db create \
-            --resource-group $RESOURCE_GROUP \
-            --server-name $SERVER_NAME \
-            --database-name $TARGET_DB
+            --resource-group "$RESOURCE_GROUP" \
+            --server-name "$SERVER_NAME" \
+            --database-name "$TARGET_DB"
 
       - name: Dump Source DB
         run: |
+          export PGPASSWORD="$SOURCE_PASSWORD"
           SOURCE_DB="${{ github.event.inputs.source_key }}"
-          pg_dump --host=$SOURCE_HOST --username=$SOURCE_USER --dbname=$SOURCE_DB > dump.sql
+          pg_dump --host="$SOURCE_HOST" --username="$SOURCE_USER" --dbname="$SOURCE_DB" > dump.sql
 
       - name: Restore Target DB
         run: |
+          export PGPASSWORD="$TARGET_PASSWORD"
           TARGET_DB="${{ github.event.inputs.target_key }}"
-          pg_restore --host=$TARGET_HOST --username=$TARGET_USER --dbname=$TARGET_DB < dump.sql
+          pg_restore --host="$TARGET_HOST" --username="$TARGET_USER" --dbname="$TARGET_DB" < dump.sql
