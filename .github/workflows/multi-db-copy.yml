@@ -1,37 +1,98 @@
-# This workflow copies all database pairs defined in copy_pairs.json by calling db-copy.yml for each pair.
-name: Multi DB Copy All Pairs
+name: Multi DB Copy
 
 on:
   workflow_dispatch:
 
 jobs:
-  discover-pairs:
+  set-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      pairs: ${{ steps.set-pairs.outputs.pairs }}
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install jq
+      - name: Read copy_pairs.json as matrix
+        id: set-pairs
         run: |
-          # Install jq for JSON parsing
-          sudo apt-get update
-          sudo apt-get install -y jq
+          PAIRS=$(cat .github/config/copy_pairs.json)
+          echo "pairs<<EOF" >> $GITHUB_OUTPUT
+          echo "$PAIRS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Set matrix from copy_pairs.json
-        id: set-matrix
-        run: |
-          # Create a JSON array for matrix.strategy from copy_pairs.json
-          PAIRS=$(cat .github/config/copy_pairs.json | jq -c '[.[]]')
-          echo "matrix=$PAIRS" >> $GITHUB_OUTPUT
-
-  copy-pairs:
-    needs: discover-pairs
+  copy-db:
+    needs: set-matrix
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        pair: ${{ fromJson(needs.discover-pairs.outputs.matrix) }}
-    uses: ./.github/workflows/db-copy.yml
-    with:
-      source_key: ${{ matrix.pair.source }}
-      target_key: ${{ matrix.pair.target }}
+        pair: ${{ fromJson(needs.set-matrix.outputs.pairs) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq and PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq postgresql-client
+
+      - name: Set DB Info from dbs.json
+        id: setdbinfo
+        run: |
+          SOURCE_KEY="${{ matrix.pair.source }}"
+          TARGET_KEY="${{ matrix.pair.target }}"
+          DB_JSON=$(cat .github/config/dbs.json)
+          # Source DB info
+          SOURCE_INFO=$(echo "$DB_JSON" | jq -r ".[] | select(.key==\"$SOURCE_KEY\")")
+          echo "SOURCE_RESOURCE_GROUP=$(echo $SOURCE_INFO | jq -r .resource_group)" >> $GITHUB_ENV
+          echo "SOURCE_SERVER_NAME=$(echo $SOURCE_INFO | jq -r .server_name)" >> $GITHUB_ENV
+          echo "SOURCE_HOST=$(echo $SOURCE_INFO | jq -r .host)" >> $GITHUB_ENV
+          echo "SOURCE_USER=$(echo $SOURCE_INFO | jq -r .user)" >> $GITHUB_ENV
+          echo "SOURCE_DB_NAME=$(echo $SOURCE_INFO | jq -r .db_name)" >> $GITHUB_ENV
+          echo "SOURCE_PASSWORD_SECRET=$(echo $SOURCE_INFO | jq -r .password_secret)" >> $GITHUB_ENV
+          # Target DB info
+          TARGET_INFO=$(echo "$DB_JSON" | jq -r ".[] | select(.key==\"$TARGET_KEY\")")
+          echo "TARGET_RESOURCE_GROUP=$(echo $TARGET_INFO | jq -r .resource_group)" >> $GITHUB_ENV
+          echo "TARGET_SERVER_NAME=$(echo $TARGET_INFO | jq -r .server_name)" >> $GITHUB_ENV
+          echo "TARGET_HOST=$(echo $TARGET_INFO | jq -r .host)" >> $GITHUB_ENV
+          echo "TARGET_USER=$(echo $TARGET_INFO | jq -r .user)" >> $GITHUB_ENV
+          echo "TARGET_DB_NAME=$(echo $TARGET_INFO | jq -r .db_name)" >> $GITHUB_ENV
+          echo "TARGET_PASSWORD_SECRET=$(echo $TARGET_INFO | jq -r .password_secret)" >> $GITHUB_ENV
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Azure CLI
+        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Export Source DB Password
+        run: |
+          echo "PGPASSWORD=${{ secrets[env.SOURCE_PASSWORD_SECRET] }}" >> $GITHUB_ENV
+      - name: Export Target DB Password
+        run: |
+          echo "PGPASSWORD_TARGET=${{ secrets[env.TARGET_PASSWORD_SECRET] }}" >> $GITHUB_ENV
+      - name: Delete and Recreate Target DB
+        run: |
+          az postgres flexible-server db delete \
+            --resource-group "$TARGET_RESOURCE_GROUP" \
+            --server-name "$TARGET_SERVER_NAME" \
+            --database-name "$TARGET_DB_NAME" \
+            --yes
+          az postgres flexible-server db create \
+            --resource-group "$TARGET_RESOURCE_GROUP" \
+            --server-name "$TARGET_SERVER_NAME" \
+            --database-name "$TARGET_DB_NAME"
+      - name: Dump Source DB
+        env:
+          PGPASSWORD: ${{ secrets[env.SOURCE_PASSWORD_SECRET] }}
+        run: |
+          pg_dump -Fc -Z 9 -x -v "$SOURCE_DB_NAME" -h "$SOURCE_HOST" -p 5432 -U "$SOURCE_USER" -f backup.dump
+      - name: Restore Target DB
+        env:
+          PGPASSWORD: ${{ secrets[env.TARGET_PASSWORD_SECRET] }}
+        run: |
+          pg_restore -Fc -c -v -d "$TARGET_DB_NAME" backup.dump -h "$TARGET_HOST" -p 5432 -U "$TARGET_USER" --if-exists
+
+      - name: Remove dump file
+        run: |
+          rm -f backup.dump
