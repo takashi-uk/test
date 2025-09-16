@@ -79,10 +79,10 @@ jobs:
         env:
           PGPASSWORD: ${{ secrets.SVR14_PASSWORD_SECRET }}
         run: |
-          pg_dump --host="$SOURCE_HOST" --username="$SOURCE_USER" --dbname="$SOURCE_DB_NAME" --no-owner --no-privileges > dump.sql
+          pg_dump -Fc -Z 9 -x -v "$SOURCE_DB_NAME" -h "$SOURCE_HOST" -p 5432 -U "$SOURCE_USER" -f backup.dump
 
       - name: Restore Target DB
         env:
           PGPASSWORD: ${{ secrets.SVR14COPY_PASSWORD_SECRET }}
         run: |
-          pg_restore --host="$TARGET_HOST" --username="$TARGET_USER" --dbname="$TARGET_DB_NAME" --no-owner --no-privileges < dump.sql
+          pg_restore -Fc -c -v -d "$TARGET_DB_NAME" backup.dump -h "$TARGET_HOST" -p 5432 -U "$TARGET_USER" --if-exists
