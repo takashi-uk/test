@@ -65,14 +65,14 @@ jobs:
       - name: Install Azure CLI
         run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      - name: Export Source DB Password
+      - name: Export Source and Target DB Passwords
         run: |
           echo "PGPASSWORD=${{ secrets[env.SOURCE_PASSWORD_SECRET] }}" >> $GITHUB_ENV
-      - name: Export Target DB Password
-        run: |
           echo "PGPASSWORD_TARGET=${{ secrets[env.TARGET_PASSWORD_SECRET] }}" >> $GITHUB_ENV
+      
       - name: Delete and Recreate Target DB
         run: |
+          echo "Target DB will be deleted and recreated: server=$TARGET_SERVER_NAME dbname=$TARGET_DB_NAME"
           az postgres flexible-server db delete \
             --resource-group "$TARGET_RESOURCE_GROUP" \
             --server-name "$TARGET_SERVER_NAME" \
@@ -82,15 +82,19 @@ jobs:
             --resource-group "$TARGET_RESOURCE_GROUP" \
             --server-name "$TARGET_SERVER_NAME" \
             --database-name "$TARGET_DB_NAME"
+      
       - name: Dump Source DB
         env:
           PGPASSWORD: ${{ secrets[env.SOURCE_PASSWORD_SECRET] }}
         run: |
+          echo "pg_dump: host=$SOURCE_HOST dbname=$SOURCE_DB_NAME"
           pg_dump -Fc -Z 9 -x -v "$SOURCE_DB_NAME" -h "$SOURCE_HOST" -p 5432 -U "$SOURCE_USER" -f backup.dump
+          
       - name: Restore Target DB
         env:
           PGPASSWORD: ${{ secrets[env.TARGET_PASSWORD_SECRET] }}
         run: |
+          echo "pg_restore: host=$TARGET_HOST dbname=$TARGET_DB_NAME"
           pg_restore -Fc -c -v -d "$TARGET_DB_NAME" backup.dump -h "$TARGET_HOST" -p 5432 -U "$TARGET_USER" --if-exists
 
       - name: Remove dump file
