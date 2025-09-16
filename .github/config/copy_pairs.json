@@ -2,5 +2,9 @@
   {
     "source": "TenantsDB_Dev_on_rosteringdevsvr14",
     "target": "TenantsDB_Dev_on_rosteringdevsvr14copy"
+  },
+  {
+    "source": "KuraSushiDB_Dev_on_rosteringdevsvr14",
+    "target": "KuraSushiDB_Dev2_on_rosteringdevsvr14copy"
   }
 ]
