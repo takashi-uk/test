@@ -1,88 +1,37 @@
-name: Multi DB Copy
+# This workflow copies all database pairs defined in copy_pairs.json by calling db-copy.yml for each pair.
+name: Multi DB Copy All Pairs
 
 on:
   workflow_dispatch:
-    inputs:
-      source_key:
-        description: 'Source DB key (例: DatabaseA)'
-        required: true
-      target_key:
-        description: 'Target DB key (例: DatabaseAcopy)'
-        required: true
 
 jobs:
-  copy-db:
+  discover-pairs:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install jq and PostgreSQL client
+      - name: Install jq
         run: |
+          # Install jq for JSON parsing
           sudo apt-get update
-          sudo apt-get install -y jq postgresql-client
+          sudo apt-get install -y jq
 
-      - name: Set DB Info from dbs.json
-        id: setdbinfo
+      - name: Set matrix from copy_pairs.json
+        id: set-matrix
         run: |
-          SOURCE_KEY="${{ github.event.inputs.source_key }}"
-          TARGET_KEY="${{ github.event.inputs.target_key }}"
-          DB_JSON=$(cat .github/config/dbs.json)
+          # Create a JSON array for matrix.strategy from copy_pairs.json
+          PAIRS=$(cat .github/config/copy_pairs.json | jq -c '[.[]]')
+          echo "matrix=$PAIRS" >> $GITHUB_OUTPUT
 
-          # Source DB info
-          SOURCE_INFO=$(echo "$DB_JSON" | jq -r ".[] | select(.key==\"$SOURCE_KEY\")")
-          echo "SOURCE_RESOURCE_GROUP=$(echo $SOURCE_INFO | jq -r .resource_group)" >> $GITHUB_ENV
-          echo "SOURCE_SERVER_NAME=$(echo $SOURCE_INFO | jq -r .server_name)" >> $GITHUB_ENV
-          echo "SOURCE_HOST=$(echo $SOURCE_INFO | jq -r .host)" >> $GITHUB_ENV
-          echo "SOURCE_USER=$(echo $SOURCE_INFO | jq -r .user)" >> $GITHUB_ENV
-          echo "SOURCE_DB_NAME=$(echo $SOURCE_INFO | jq -r .db_name)" >> $GITHUB_ENV
-          echo "SOURCE_PASSWORD_SECRET=$(echo $SOURCE_INFO | jq -r .password_secret)" >> $GITHUB_ENV
-
-          # Target DB info
-          TARGET_INFO=$(echo "$DB_JSON" | jq -r ".[] | select(.key==\"$TARGET_KEY\")")
-          echo "TARGET_RESOURCE_GROUP=$(echo $TARGET_INFO | jq -r .resource_group)" >> $GITHUB_ENV
-          echo "TARGET_SERVER_NAME=$(echo $TARGET_INFO | jq -r .server_name)" >> $GITHUB_ENV
-          echo "TARGET_HOST=$(echo $TARGET_INFO | jq -r .host)" >> $GITHUB_ENV
-          echo "TARGET_USER=$(echo $TARGET_INFO | jq -r .user)" >> $GITHUB_ENV
-          echo "TARGET_DB_NAME=$(echo $TARGET_INFO | jq -r .db_name)" >> $GITHUB_ENV
-          echo "TARGET_PASSWORD_SECRET=$(echo $TARGET_INFO | jq -r .password_secret)" >> $GITHUB_ENV
-
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Install Azure CLI
-        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-      - name: Export Source DB Password
-        run: |
-          echo "PGPASSWORD=${{ secrets[env.SOURCE_PASSWORD_SECRET] }}" >> $GITHUB_ENV
-
-      - name: Export Target DB Password
-        run: |
-          echo "PGPASSWORD_TARGET=${{ secrets[env.TARGET_PASSWORD_SECRET] }}" >> $GITHUB_ENV
-
-      - name: Delete and Recreate Target DB
-        run: |
-          az postgres flexible-server db delete \
-            --resource-group "$TARGET_RESOURCE_GROUP" \
-            --server-name "$TARGET_SERVER_NAME" \
-            --database-name "$TARGET_DB_NAME" \
-            --yes
-          az postgres flexible-server db create \
-            --resource-group "$TARGET_RESOURCE_GROUP" \
-            --server-name "$TARGET_SERVER_NAME" \
-            --database-name "$TARGET_DB_NAME"
-
-      - name: Dump Source DB
-        env:
-          PGPASSWORD: ${{ secrets.SVR14_PASSWORD_SECRET }}
-        run: |
-          pg_dump -Fc -Z 9 -x -v "$SOURCE_DB_NAME" -h "$SOURCE_HOST" -p 5432 -U "$SOURCE_USER" -f backup.dump
-
-      - name: Restore Target DB
-        env:
-          PGPASSWORD: ${{ secrets.SVR14COPY_PASSWORD_SECRET }}
-        run: |
-          pg_restore -Fc -c -v -d "$TARGET_DB_NAME" backup.dump -h "$TARGET_HOST" -p 5432 -U "$TARGET_USER" --if-exists
+  copy-pairs:
+    needs: discover-pairs
+    strategy:
+      matrix:
+        pair: ${{ fromJson(needs.discover-pairs.outputs.matrix) }}
+    uses: ./.github/workflows/db-copy.yml
+    with:
+      source_key: ${{ matrix.pair.source }}
+      target_key: ${{ matrix.pair.target }}

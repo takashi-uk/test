@@ -1,6 +1,6 @@
 [
   {
-    "key": "DatabaseA",
+    "key": "TenantsDB_Dev_on_rosteringdevsvr14",
     "server": "rosteringdevsvr14",
     "host": "rosteringdevsvr14.postgres.database.azure.com",
     "user": "si_admin",
@@ -10,7 +10,7 @@
     "password_secret": "SVR14_PASSWORD_SECRET"
   },
   {
-    "key": "DatabaseAcopy",
+    "key": "TenantsDB_Dev_on_rosteringdevsvr14copy",
     "server": "rosteringdevsvr14copy",
     "host": "rosteringdevsvr14copy.postgres.database.azure.com",
     "user": "si_admin",
