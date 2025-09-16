@@ -1,3 +1,15 @@
+name: Multi DB Copy
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_key:
+        description: 'Source DB key (例: DatabaseA)'
+        required: true
+      target_key:
+        description: 'Target DB key (例: DatabaseAcopy)'
+        required: true
+
 jobs:
   copy-db:
     runs-on: ubuntu-latest
@@ -5,19 +17,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Install jq and PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq postgresql-client
 
-      - name: Set DB Info
+      - name: Set DB Info from dbs.json
         id: setdbinfo
         run: |
           SOURCE_KEY="${{ github.event.inputs.source_key }}"
           TARGET_KEY="${{ github.event.inputs.target_key }}"
-          DB_JSON=$(cat dbs.json)
+          DB_JSON=$(cat .github/config/dbs.json)
 
+          # Source DB info
           SOURCE_INFO=$(echo "$DB_JSON" | jq -r ".[] | select(.key==\"$SOURCE_KEY\")")
-          TARGET_INFO=$(echo "$DB_JSON" | jq -r ".[] | select(.key==\"$TARGET_KEY\")")
-
           echo "SOURCE_RESOURCE_GROUP=$(echo $SOURCE_INFO | jq -r .resource_group)" >> $GITHUB_ENV
           echo "SOURCE_SERVER_NAME=$(echo $SOURCE_INFO | jq -r .server_name)" >> $GITHUB_ENV
           echo "SOURCE_HOST=$(echo $SOURCE_INFO | jq -r .host)" >> $GITHUB_ENV
@@ -25,6 +38,8 @@ jobs:
           echo "SOURCE_DB_NAME=$(echo $SOURCE_INFO | jq -r .db_name)" >> $GITHUB_ENV
           echo "SOURCE_PASSWORD_SECRET=$(echo $SOURCE_INFO | jq -r .password_secret)" >> $GITHUB_ENV
 
+          # Target DB info
+          TARGET_INFO=$(echo "$DB_JSON" | jq -r ".[] | select(.key==\"$TARGET_KEY\")")
           echo "TARGET_RESOURCE_GROUP=$(echo $TARGET_INFO | jq -r .resource_group)" >> $GITHUB_ENV
           echo "TARGET_SERVER_NAME=$(echo $TARGET_INFO | jq -r .server_name)" >> $GITHUB_ENV
           echo "TARGET_HOST=$(echo $TARGET_INFO | jq -r .host)" >> $GITHUB_ENV
@@ -39,6 +54,14 @@ jobs:
 
       - name: Install Azure CLI
         run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Export Source DB Password
+        run: |
+          echo "PGPASSWORD=${{ secrets[env.SOURCE_PASSWORD_SECRET] }}" >> $GITHUB_ENV
+
+      - name: Export Target DB Password
+        run: |
+          echo "PGPASSWORD_TARGET=${{ secrets[env.TARGET_PASSWORD_SECRET] }}" >> $GITHUB_ENV
 
       - name: Delete and Recreate Target DB
         run: |
@@ -56,10 +79,10 @@ jobs:
         env:
           PGPASSWORD: ${{ secrets.SVR14_PASSWORD_SECRET }}
         run: |
-          pg_dump --host="$SOURCE_HOST" --username="$SOURCE_USER" --dbname="$SOURCE_DB_NAME" > dump.sql
+          pg_dump --host="$SOURCE_HOST" --username="$SOURCE_USER" --dbname="$SOURCE_DB_NAME" --no-owner --no-privileges > dump.sql
 
       - name: Restore Target DB
         env:
           PGPASSWORD: ${{ secrets.SVR14COPY_PASSWORD_SECRET }}
         run: |
-          pg_restore --host="$TARGET_HOST" --username="$TARGET_USER" --dbname="$TARGET_DB_NAME" < dump.sql
+          pg_restore --host="$TARGET_HOST" --username="$TARGET_USER" --dbname="$TARGET_DB_NAME" --no-owner --no-privileges < dump.sql
