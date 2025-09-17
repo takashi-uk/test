@@ -42,13 +42,11 @@ jobs:
           STATE=$(az postgres flexible-server show \
             --resource-group "${{ inputs.azure_resource_group }}" \
             --name "${{ inputs.azure_server_name }}" \
-            --api-version 2024-11-01 \
             --query "state" -o tsv)
           if [ "$STATE" == "Ready" ]; then
               echo "${{ inputs.azure_server_name }} is already running"
           else
               az postgres flexible-server start \
                 --resource-group "${{ inputs.azure_resource_group }}" \
-                --name "${{ inputs.azure_server_name }}" \
-                --api-version 2024-11-01
+                --name "${{ inputs.azure_server_name }}"
           fi
