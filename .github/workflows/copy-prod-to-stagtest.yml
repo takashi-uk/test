@@ -10,3 +10,5 @@ jobs:
       copy_pairs_path: .github/config/copy_pairs.prod-to-stagtest.json
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PRODSVR_PASSWORD_SECRET: ${{ secrets.PRODSVR_PASSWORD_SECRET }}
+      STAGSVR_PASSWORD_SECRET: ${{ secrets.STAGSVR_PASSWORD_SECRET }}
