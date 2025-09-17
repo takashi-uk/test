@@ -12,6 +12,7 @@ env:
 
 jobs:
   start-db-server:
+    name: Start PostgreSQL Flexible Server
     uses: ./.github/workflows/start-db-server.yml
     with:
       azure_resource_group: ${{ inputs.azure_resource_group }}
@@ -20,6 +21,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   start-aks-cluster:
+    name: Start AKS Cluster
     needs: start-db-server
     uses: ./.github/workflows/start-aks-cluster.yml
     with:
