@@ -1,0 +1,10 @@
+name: Copy Dev to DevCopy DBs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-multi-db-copy:
+    uses: ./.github/workflows/multi-db-copy.yml
+    with:
+      copy_pairs_path: .github/config/copy_pairs.dev-to-devcopy.json

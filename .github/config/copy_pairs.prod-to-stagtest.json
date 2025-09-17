@@ -1,0 +1,30 @@
+[
+  {
+    "source": "TenantsDB_Prod_snpsrosteringsvr",
+    "target": "TenantsDB_StagTsest_snpsrosteringstagsvr"
+  },
+  {
+    "source": "IdentityDB_Prod_snpsrosteringsvr",
+    "target": "IdentityDB_StagTsest_snpsrosteringstagsvr"
+  },
+  {
+    "source": "KuraSushiDB_Prod_snpsrosteringsvr",
+    "target": "KuraSushiDB_StagTsest_snpsrosteringstagsvr"
+  },
+  {
+    "source": "BodyworkDB_Prod_snpsrosteringsvr",
+    "target": "BodyworkDB_StagTsest_snpsrosteringstagsvr"
+  },
+  {
+    "source": "PALDB_Prod_snpsrosteringsvr",
+    "target": "PALDB_StagTsest_snpsrosteringstagsvr"
+  },
+  {
+    "source": "SundiDB_Prod_snpsrosteringsvr",
+    "target": "SundiDB_StagTsest_snpsrosteringstagsvr"
+  },
+  {
+    "source": "ReportingDB_Prod_snpsrosteringsvr",
+    "target": "ReportingDB_StagTsest_snpsrosteringstagsvr"
+  }
+]

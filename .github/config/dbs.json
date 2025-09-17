@@ -1,6 +1,6 @@
 [
   {
-    "key": "TenantsDB_Dev_on_rosteringdevsvr14",
+    "key": "TenantsDB_Dev_rosteringdevsvr14",
     "server": "rosteringdevsvr14",
     "host": "rosteringdevsvr14.postgres.database.azure.com",
     "user": "si_admin",
@@ -10,7 +10,7 @@
     "password_secret": "SVR14_PASSWORD_SECRET"
   },
   {
-    "key": "TenantsDB_Dev_on_rosteringdevsvr14copy",
+    "key": "TenantsDB_Dev_rosteringdevsvr14copy",
     "server": "rosteringdevsvr14copy",
     "host": "rosteringdevsvr14copy.postgres.database.azure.com",
     "user": "si_admin",
@@ -19,24 +19,229 @@
     "db_name": "TenantsDB_Dev",
     "password_secret": "SVR14COPY_PASSWORD_SECRET"
   },
+
+
+
+
   {
-    "key": "KuraSushiDB_Dev_on_rosteringdevsvr14",
-    "server": "rosteringdevsvr14",
-    "host": "rosteringdevsvr14.postgres.database.azure.com",
+    "key": "TenantsDB_StagTest_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
     "user": "si_admin",
-    "resource_group": "Common",
-    "server_name": "rosteringdevsvr14",
-    "db_name": "KuraSushiDB_Dev",
-    "password_secret": "SVR14_PASSWORD_SECRET"
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "TenantsDB_StagTest",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
   },
   {
-    "key": "KuraSushiDB_Dev2_on_rosteringdevsvr14copy",
-    "server": "rosteringdevsvr14copy",
-    "host": "rosteringdevsvr14copy.postgres.database.azure.com",
+    "key": "IdentityDB_StagTest_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
     "user": "si_admin",
-    "resource_group": "Takashi",
-    "server_name": "rosteringdevsvr14copy",
-    "db_name": "KuraSushiDB_Dev2",
-    "password_secret": "SVR14COPY_PASSWORD_SECRET"
-  }
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "IdentityDB_StagTest",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "KuraSushiDB_StagTest_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "KuraSushiDB_StagTest",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "BodyworkDB_StagTest_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "BodyworkDB_StagTest",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "PALDB_StagTest_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "PALDB_StagTest",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "SundiDB_StagTest_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "SundiDB_StagTest",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "ReportingDB_StagTest_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "ReportingDB_StagTest",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+
+
+
+
+
+  {
+    "key": "TenantsDB_StagProd_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "TenantsDB_StagProd",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "IdentityDB_StagProd_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "IdentityDB_StagProd",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "KuraSushiDB_StagProd_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "KuraSushiDB_StagProd",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "BodyworkDB_StagProd_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "BodyworkDB_StagProd",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "PALDB_StagProd_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "PALDB_StagProd",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "SundiDB_StagProd_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "SundiDB_StagProd",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "ReportingDB_StagProd_snpsrosteringstagsvr",
+    "server": "snpsrosteringstagsvr",
+    "host": "snpsrosteringstagsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Synapse",
+    "server_name": "snpsrosteringstagsvr",
+    "db_name": "ReportingDB_StagProd",
+    "password_secret": "STAGSVR_PASSWORD_SECRET"
+  },
+
+
+
+  {
+    "key": "TenantsDB_Prod_snpsrosteringsvr",
+    "server": "snpsrosteringsvr",
+    "host": "snpsrosteringsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Bodywork",
+    "server_name": "snpsrosteringsvr",
+    "db_name": "TenantsDB_Prod",
+    "password_secret": "PRODSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "IdentityDB_Prod_snpsrosteringsvr",
+    "server": "snpsrosteringsvr",
+    "host": "snpsrosteringsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Bodywork",
+    "server_name": "snpsrosteringsvr",
+    "db_name": "IdentityDB_Prod",
+    "password_secret": "PRODSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "KuraSushiDB_Prod_snpsrosteringsvr",
+    "server": "snpsrosteringsvr",
+    "host": "snpsrosteringsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Bodywork",
+    "server_name": "snpsrosteringsvr",
+    "db_name": "KuraSushiDB_Prod",
+    "password_secret": "PRODSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "BodyworkDB_Prod_snpsrosteringsvr",
+    "server": "snpsrosteringsvr",
+    "host": "snpsrosteringsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Bodywork",
+    "server_name": "snpsrosteringsvr",
+    "db_name": "BodyworkDB_Prod",
+    "password_secret": "PRODSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "PALDB_Prod_snpsrosteringsvr",
+    "server": "snpsrosteringsvr",
+    "host": "snpsrosteringsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Bodywork",
+    "server_name": "snpsrosteringsvr",
+    "db_name": "PALDB_Prod",
+    "password_secret": "PRODSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "SundiDB_Prod_snpsrosteringsvr",
+    "server": "snpsrosteringsvr",
+    "host": "snpsrosteringsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Bodywork",
+    "server_name": "snpsrosteringsvr",
+    "db_name": "SundiDB_Prod",
+    "password_secret": "PRODSVR_PASSWORD_SECRET"
+  },
+  {
+    "key": "ReportingDB_Prod_snpsrosteringsvr",
+    "server": "snpsrosteringsvr",
+    "host": "snpsrosteringsvr.postgres.database.azure.com",
+    "user": "si_admin",
+    "resource_group": "Rostering_Bodywork",
+    "server_name": "snpsrosteringsvr",
+    "db_name": "ReportingDB_Prod",
+    "password_secret": "PRODSVR_PASSWORD_SECRET"
+  },
+
+
+
 ]

@@ -1,7 +1,11 @@
 name: Multi DB Copy
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      copy_pairs_path:
+        required: true
+        type: string
 
 jobs:
   set-matrix:
@@ -14,12 +18,13 @@ jobs:
       - name: Read copy_pairs.json as matrix
         id: set-pairs
         run: |
-          PAIRS=$(cat .github/config/copy_pairs.json)
+          PAIRS=$(cat "${{ inputs.copy_pairs_path }}")
           echo "pairs<<EOF" >> $GITHUB_OUTPUT
           echo "$PAIRS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
   copy-db:
+    name: Copy DB from ${{ matrix.pair.source }} to ${{ matrix.pair.target }}
     needs: set-matrix
     runs-on: ubuntu-latest
     strategy:
