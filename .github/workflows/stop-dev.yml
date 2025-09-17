@@ -1,0 +1,26 @@
+name: Start Dev (Scheduled)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 7 * * *'
+
+jobs:
+  start-db-server:
+    name: Start PostgreSQL Flexible Server
+    uses: ./.github/workflows/stop-db-server.yml
+    with:
+      azure_resource_group: Common
+      azure_server_name: rosteringdevsvr14
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  start-aks-cluster:
+    name: Start AKS Cluster
+    needs: start-db-server
+    uses: ./.github/workflows/stop-aks-cluster.yml
+    with:
+      azure_resource_group: Common
+      azure_cluster_name: rosteringdevcluster
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

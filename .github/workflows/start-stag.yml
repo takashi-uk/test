@@ -1,0 +1,26 @@
+name: Start Staging (Scheduled)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22 * * *'
+
+jobs:
+  start-db-server:
+    name: Start PostgreSQL Flexible Server
+    uses: ./.github/workflows/start-db-server.yml
+    with:
+      azure_resource_group: Rostering_Synapse
+      azure_server_name: snpsrosteringstagsvr
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  start-aks-cluster:
+    name: Start AKS Cluster
+    needs: start-db-server
+    uses: ./.github/workflows/start-aks-cluster.yml
+    with:
+      azure_resource_group: Rostering_Synapse
+      azure_cluster_name: snpsstagcluster
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

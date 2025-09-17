@@ -1,4 +1,4 @@
-name: Start DB Server
+name: Stop AKS Cluster
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
       azure_resource_group:
         required: true
         type: string
-      azure_server_name:
+      azure_cluster_name:
         required: true
         type: string
     secrets:
@@ -14,7 +14,7 @@ on:
         required: true
 
 jobs:
-  start-db-server:
+  stop-aks-cluster:
     runs-on: ubuntu-latest
     steps:
       - name: Azure login
@@ -25,16 +25,16 @@ jobs:
       - name: Install Azure CLI
         run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      - name: Start DB Server
+      - name: Stop AKS Cluster
         run: |
-          STATE=$(az postgres flexible-server show \
+          POWERSTATE=$(az aks show \
             --resource-group "${{ inputs.azure_resource_group }}" \
-            --name "${{ inputs.azure_server_name }}" \
-            --query "state" -o tsv)
-          if [ "$STATE" == "Ready" ]; then
-              echo "${{ inputs.azure_server_name }} is already running"
+            --name "${{ inputs.azure_cluster_name }}" \
+            --query "powerState.code" -o tsv)
+          if [ "$POWERSTATE" == "Stopped" ]; then
+              echo "${{ inputs.azure_cluster_name }} is already stopped"
           else
-              az postgres flexible-server start \
+              az aks stop \
                 --resource-group "${{ inputs.azure_resource_group }}" \
-                --name "${{ inputs.azure_server_name }}"
+                --name "${{ inputs.azure_cluster_name }}"
           fi
