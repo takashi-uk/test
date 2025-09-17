@@ -15,24 +15,16 @@ on:
 
 jobs:
   start-db-server:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Azure login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Get current distribution codename
-        id: get_dist
-        run: echo "AZ_DIST=$(lsb_release -cs)" >> $GITHUB_ENV
-
-      - name: Set Azure CLI version
-        run: echo "AZ_VER=2.51.0" >> $GITHUB_ENV
-
-      - name: Install specific version of Azure CLI
+      - name: Install Azure CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y azure-cli=${AZ_VER}-1~${AZ_DIST}
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
           az --version
 
       - name: Start DB Server
