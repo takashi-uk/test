@@ -22,11 +22,17 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Install latest stable Azure CLI
+      - name: Get current distribution codename
+        id: get_dist
+        run: echo "AZ_DIST=$(lsb_release -cs)" >> $GITHUB_ENV
+
+      - name: Set Azure CLI version
+        run: echo "AZ_VER=2.51.0" >> $GITHUB_ENV
+
+      - name: Install specific version of Azure CLI
         run: |
-          wget https://azurecliprod.blob.core.windows.net/releases/azure-cli-2.54.0-1.all.deb
-          sudo apt-get remove -y azure-cli
-          sudo apt-get install -y ./azure-cli-2.54.0-1.all.deb
+          sudo apt-get update
+          sudo apt-get install -y azure-cli=${AZ_VER}-1~${AZ_DIST}
           az --version
 
       - name: Start DB Server
