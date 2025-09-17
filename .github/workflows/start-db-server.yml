@@ -24,10 +24,8 @@ jobs:
 
       - name: Install latest stable Azure CLI
         run: |
-          sudo apt-get remove -y azure-cli
-          sudo apt-get update
-          sudo apt-get install -y azure-cli=2.54.0-1~jammy
-
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          az upgrade
           az --version
 
       - name: Start DB Server
