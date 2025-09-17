@@ -3,7 +3,7 @@ name: Start Dev (Scheduled)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '10 7 * * *'
+    - cron: '20 7 * * *'
 
 env:
   AZURE_RESOURCE_GROUP: Common
