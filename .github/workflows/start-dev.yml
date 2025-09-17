@@ -1,0 +1,35 @@
+name: Start Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      azure_resource_group:
+        description: "Azure Resource Group Name"
+        required: true
+        type: string
+      azure_server_name:
+        description: "PostgreSQL Server Name"
+        required: true
+        type: string
+      azure_cluster_name:
+        description: "AKS Cluster Name"
+        required: true
+        type: string
+
+jobs:
+  start-db-server:
+    uses: ./.github/workflows/start-db-server.yml
+    with:
+      azure_resource_group: ${{ inputs.azure_resource_group }}
+      azure_server_name: ${{ inputs.azure_server_name }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  start-aks-cluster:
+    needs: start-db-server
+    uses: ./.github/workflows/start-aks-cluster.yml
+    with:
+      azure_resource_group: ${{ inputs.azure_resource_group }}
+      azure_cluster_name: ${{ inputs.azure_cluster_name }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

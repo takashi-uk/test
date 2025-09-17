@@ -1,0 +1,40 @@
+name: Start AKS Cluster
+
+on:
+  workflow_call:
+    inputs:
+      azure_resource_group:
+        required: true
+        type: string
+      azure_cluster_name:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  start-aks-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Azure CLI
+        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Start AKS Cluster
+        run: |
+          POWERSTATE=$(az aks show \
+            --resource-group "${{ inputs.azure_resource_group }}" \
+            --name "${{ inputs.azure_cluster_name }}" \
+            --query "powerState.code" -o tsv)
+          if [ "$POWERSTATE" == "Running" ]; then
+              echo "${{ inputs.azure_cluster_name }} is already running"
+          else
+              az aks start \
+                --resource-group "${{ inputs.azure_resource_group }}" \
+                --name "${{ inputs.azure_cluster_name }}"
+          fi

@@ -1,0 +1,40 @@
+name: Start DB Server
+
+on:
+  workflow_call:
+    inputs:
+      azure_resource_group:
+        required: true
+        type: string
+      azure_server_name:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  start-db-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Azure CLI
+        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Start DB Server
+        run: |
+          STATE=$(az postgres flexible-server show \
+            --resource-group "${{ inputs.azure_resource_group }}" \
+            --name "${{ inputs.azure_server_name }}" \
+            --query "state" -o tsv)
+          if [ "$STATE" == "Ready" ]; then
+              echo "${{ inputs.azure_server_name }} is already running"
+          else
+              az postgres flexible-server start \
+                --resource-group "${{ inputs.azure_resource_group }}" \
+                --name "${{ inputs.azure_server_name }}"
+          fi
