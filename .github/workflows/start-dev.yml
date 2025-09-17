@@ -1,4 +1,4 @@
-name: Start Dev
+name: Start Dev (Scheduled)
 
 on:
   workflow_dispatch:
