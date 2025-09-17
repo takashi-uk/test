@@ -24,18 +24,10 @@ jobs:
 
       - name: Install latest stable Azure CLI
         run: |
-          # Add Microsoft's GPG key for package signing
-          curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
-
-          # Add the Azure CLI software repository for your specific OS release (e.g., jammy)
-          AZ_REPO=$(lsb_release -cs)
-          echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-
-          # Update the package index
+          sudo apt-get remove -y azure-cli
           sudo apt-get update
+          sudo apt-get install -y azure-cli=2.54.0-1~jammy
 
-          # Install the latest version of azure-cli
-          sudo apt-get install -y azure-cli
           az --version
 
       - name: Start DB Server
