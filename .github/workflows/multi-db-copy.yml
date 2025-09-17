@@ -9,6 +9,14 @@ on:
     secrets:
       AZURE_CREDENTIALS:
         required: true
+      SVR14_PASSWORD_SECRET:
+        required: false
+      SVR14COPY_PASSWORD_SECRET:
+        required: false
+      PRODSVR_PASSWORD_SECRET:
+        required: false
+      STAGSVR_PASSWORD_SECRET:
+        required: false
 
 jobs:
   set-matrix:
@@ -73,11 +81,28 @@ jobs:
       - name: Install Azure CLI
         run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
+      # Set PGPASSWORD statically
+      # GitHub Actions does not support referencing secrets with dynamic variable names (e.g., secrets[env.SOURCE_PASSWORD_SECRET]).
+      # Therefore, we must use a shell case statement to assign the correct password value to PGPASSWORD and PGPASSWORD_TARGET.
       - name: Export Source and Target DB Passwords
         run: |
-          echo "PGPASSWORD=${{ secrets[env.SOURCE_PASSWORD_SECRET] }}" >> $GITHUB_ENV
-          echo "PGPASSWORD_TARGET=${{ secrets[env.TARGET_PASSWORD_SECRET] }}" >> $GITHUB_ENV
-      
+          # source
+          case "$SOURCE_PASSWORD_SECRET" in
+            "SVR14_PASSWORD_SECRET") echo "PGPASSWORD=${{ secrets.SVR14_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            "SVR14COPY_PASSWORD_SECRET") echo "PGPASSWORD=${{ secrets.SVR14COPY_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            "PRODSVR_PASSWORD_SECRET") echo "PGPASSWORD=${{ secrets.PRODSVR_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            "STAGSVR_PASSWORD_SECRET") echo "PGPASSWORD=${{ secrets.STAGSVR_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            *) echo "PGPASSWORD=" >> $GITHUB_ENV ;;
+          esac
+          # target
+          case "$TARGET_PASSWORD_SECRET" in
+            "SVR14_PASSWORD_SECRET") echo "PGPASSWORD_TARGET=${{ secrets.SVR14_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            "SVR14COPY_PASSWORD_SECRET") echo "PGPASSWORD_TARGET=${{ secrets.SVR14COPY_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            "PRODSVR_PASSWORD_SECRET") echo "PGPASSWORD_TARGET=${{ secrets.PRODSVR_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            "STAGSVR_PASSWORD_SECRET") echo "PGPASSWORD_TARGET=${{ secrets.STAGSVR_PASSWORD_SECRET }}" >> $GITHUB_ENV ;;
+            *) echo "PGPASSWORD_TARGET=" >> $GITHUB_ENV ;;
+          esac
+          
       - name: Delete and Recreate Target DB
         run: |
           echo "Target DB will be deleted and recreated: server=$TARGET_SERVER_NAME dbname=$TARGET_DB_NAME"
@@ -93,14 +118,14 @@ jobs:
       
       - name: Dump Source DB
         env:
-          PGPASSWORD: ${{ secrets[env.SOURCE_PASSWORD_SECRET] }}
+          PGPASSWORD: ${{ env.PGPASSWORD }}
         run: |
           echo "pg_dump: host=$SOURCE_HOST dbname=$SOURCE_DB_NAME"
           pg_dump -Fc -Z 9 -x -v "$SOURCE_DB_NAME" -h "$SOURCE_HOST" -p 5432 -U "$SOURCE_USER" -f backup.dump
           
       - name: Restore Target DB
         env:
-          PGPASSWORD: ${{ secrets[env.TARGET_PASSWORD_SECRET] }}
+          PGPASSWORD: ${{ env.PGPASSWORD_TARGET }}
         run: |
           echo "pg_restore: host=$TARGET_HOST dbname=$TARGET_DB_NAME"
           pg_restore -Fc -c -v -d "$TARGET_DB_NAME" backup.dump -h "$TARGET_HOST" -p 5432 -U "$TARGET_USER" --if-exists
