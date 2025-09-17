@@ -240,7 +240,7 @@
     "server_name": "snpsrosteringsvr",
     "db_name": "ReportingDB_Prod",
     "password_secret": "PRODSVR_PASSWORD_SECRET"
-  },
+  }
 
 
 
