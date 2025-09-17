@@ -1,4 +1,4 @@
-name: Start Dev (Scheduled)
+name: Stop Dev (Scheduled)
 
 on:
   workflow_dispatch:
@@ -6,8 +6,8 @@ on:
     - cron: '20 7 * * *'
 
 jobs:
-  start-db-server:
-    name: Start PostgreSQL Flexible Server
+  stop-db-server:
+    name: Stop PostgreSQL Flexible Server
     uses: ./.github/workflows/stop-db-server.yml
     with:
       azure_resource_group: Common
@@ -15,9 +15,9 @@ jobs:
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
-  start-aks-cluster:
-    name: Start AKS Cluster
-    needs: start-db-server
+  stop-aks-cluster:
+    name: Stop AKS Cluster
+    needs: stop-db-server
     uses: ./.github/workflows/stop-aks-cluster.yml
     with:
       azure_resource_group: Common
