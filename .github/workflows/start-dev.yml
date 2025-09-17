@@ -2,19 +2,13 @@ name: Start Dev
 
 on:
   workflow_dispatch:
-    inputs:
-      azure_resource_group:
-        description: "Azure Resource Group Name"
-        required: true
-        type: string
-      azure_server_name:
-        description: "PostgreSQL Server Name"
-        required: true
-        type: string
-      azure_cluster_name:
-        description: "AKS Cluster Name"
-        required: true
-        type: string
+  schedule:
+    - cron: '55 6 * * *'
+
+env:
+  AZURE_RESOURCE_GROUP: Common
+  AZURE_SERVER_NAME: rosteringdevsvr14
+  AZURE_CLUSTER_NAME: rosteringdevcluster
 
 jobs:
   start-db-server:
