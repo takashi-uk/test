@@ -5,18 +5,13 @@ on:
   schedule:
     - cron: '20 7 * * *'
 
-env:
-  AZURE_RESOURCE_GROUP: Common
-  AZURE_SERVER_NAME: rosteringdevsvr14
-  AZURE_CLUSTER_NAME: rosteringdevcluster
-
 jobs:
   start-db-server:
     name: Start PostgreSQL Flexible Server
     uses: ./.github/workflows/start-db-server.yml
     with:
-      azure_resource_group: ${{ env.AZURE_RESOURCE_GROUP }}
-      azure_server_name: ${{ env.AZURE_SERVER_NAME }}
+      azure_resource_group: Common
+      azure_server_name: rosteringdevsvr14
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -25,7 +20,7 @@ jobs:
     needs: start-db-server
     uses: ./.github/workflows/start-aks-cluster.yml
     with:
-      azure_resource_group: ${{ env.AZURE_RESOURCE_GROUP }}
-      azure_cluster_name: ${{ env.AZURE_CLUSTER_NAME }}
+      azure_resource_group: Common
+      azure_cluster_name: rosteringdevcluster
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
