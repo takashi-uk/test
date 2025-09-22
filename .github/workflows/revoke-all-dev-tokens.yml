@@ -1,0 +1,50 @@
+name: Revoke IDP Client Tokens
+
+on:
+  workflow_call:
+    inputs:
+      IDP_URL:
+        required: true
+        type: string
+      API_URL:
+        required: true
+        type: string
+      CLIENT_ID_TO_REVOKE:
+        required: true
+        type: string
+      TENANT_ID:
+        required: true
+        type: string
+
+jobs:
+  revoke-tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get IDP access token
+        id: get_token
+        env:
+          IDP_URL: ${{ inputs.IDP_URL }}
+          CLIENT_ID: ${{ secrets.IDP_CLIENT_ID_API }}
+          CLIENT_SECRET: ${{ secrets.IDP_CLIENT_SECRET_API }}
+        run: |
+          TOKEN=$(curl --location --request POST "$IDP_URL/connect/token" \
+            --header 'Content-Type: application/x-www-form-urlencoded' \
+            --data-urlencode 'grant_type=client_credentials' \
+            --data-urlencode 'scope=api.read IdentityServerApi' \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+
+          echo "TOKEN: $TOKEN"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Revoke tokens for IDP client
+        env:
+          API_URL: ${{ inputs.API_URL }}
+          CLIENT_ID_TO_REVOKE: ${{ inputs.CLIENT_ID_TO_REVOKE }}
+          TENANT_ID: ${{ inputs.TENANT_ID }}
+          TOKEN: ${{ steps.get_token.outputs.token }}
+        run: |
+          curl --location --request POST "$API_URL/api/IdpClient/RevokeTokens" \
+            --header "client-id: $CLIENT_ID_TO_REVOKE" \
+            --header "tenant-id: $TENANT_ID" \
+            --header "Authorization: Bearer $TOKEN"
