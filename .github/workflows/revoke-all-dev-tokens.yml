@@ -8,61 +8,58 @@ env:
   API_URL: "https://apidevk.teamlaika.com"
 
 jobs:
-  call-revoke-tokens:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Revoke tokens for KuraSushi (app/private)
-        uses: ./.github/workflows/revoke-tokens.yml
-        with:
-          IDP_URL: ${{ env.IDP_URL }}
-          API_URL: ${{ env.API_URL }}
-          CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_private"
-          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+  revoke-tokens-app-private:
+    uses: ./.github/workflows/revoke-tokens.yml
+    with:
+      IDP_URL: ${{ env.IDP_URL }}
+      API_URL: ${{ env.API_URL }}
+      CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_private"
+      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
 
-      - name: Revoke tokens for KuraSushi (app/public)
-        uses: ./.github/workflows/revoke-tokens.yml
-        with:
-          IDP_URL: ${{ env.IDP_URL }}
-          API_URL: ${{ env.API_URL }}
-          CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_public"
-          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+  revoke-tokens-app-public:
+    uses: ./.github/workflows/revoke-tokens.yml
+    with:
+      IDP_URL: ${{ env.IDP_URL }}
+      API_URL: ${{ env.API_URL }}
+      CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_public"
+      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
 
-      - name: Revoke tokens for KuraSushi (private)
-        uses: ./.github/workflows/revoke-tokens.yml
-        with:
-          IDP_URL: ${{ env.IDP_URL }}
-          API_URL: ${{ env.API_URL }}
-          CLIENT_ID_TO_REVOKE: "kurasushi_dev_private"
-          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+  revoke-tokens-private:
+    uses: ./.github/workflows/revoke-tokens.yml
+    with:
+      IDP_URL: ${{ env.IDP_URL }}
+      API_URL: ${{ env.API_URL }}
+      CLIENT_ID_TO_REVOKE: "kurasushi_dev_private"
+      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
 
-      - name: Revoke tokens for KuraSushi (public)
-        uses: ./.github/workflows/revoke-tokens.yml
-        with:
-          IDP_URL: ${{ env.IDP_URL }}
-          API_URL: ${{ env.API_URL }}
-          CLIENT_ID_TO_REVOKE: "kurasushi_dev_public"
-          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+  revoke-tokens-public:
+    uses: ./.github/workflows/revoke-tokens.yml
+    with:
+      IDP_URL: ${{ env.IDP_URL }}
+      API_URL: ${{ env.API_URL }}
+      CLIENT_ID_TO_REVOKE: "kurasushi_dev_public"
+      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
 
-      - name: Revoke tokens for Bodywork
-        uses: ./.github/workflows/revoke-tokens.yml
-        with:
-          IDP_URL: ${{ env.IDP_URL }}
-          API_URL: ${{ env.API_URL }}
-          CLIENT_ID_TO_REVOKE: "bodywork_dev"
-          TENANT_ID: "f506fd9c-b8be-4126-a249-350966258b99"
+  revoke-tokens-bodywork:
+    uses: ./.github/workflows/revoke-tokens.yml
+    with:
+      IDP_URL: ${{ env.IDP_URL }}
+      API_URL: ${{ env.API_URL }}
+      CLIENT_ID_TO_REVOKE: "bodywork_dev"
+      TENANT_ID: "f506fd9c-b8be-4126-a249-350966258b99"
 
-      - name: Revoke tokens for PAL
-        uses: ./.github/workflows/revoke-tokens.yml
-        with:
-          IDP_URL: ${{ env.IDP_URL }}
-          API_URL: ${{ env.API_URL }}
-          CLIENT_ID_TO_REVOKE: "snpsshift_pal_dev"
-          TENANT_ID: "7b2330b8-244e-41a3-bf6e-1355a53bb55e"
+  revoke-tokens-pal:
+    uses: ./.github/workflows/revoke-tokens.yml
+    with:
+      IDP_URL: ${{ env.IDP_URL }}
+      API_URL: ${{ env.API_URL }}
+      CLIENT_ID_TO_REVOKE: "snpsshift_pal_dev"
+      TENANT_ID: "7b2330b8-244e-41a3-bf6e-1355a53bb55e"
 
-      - name: Revoke tokens for Sundi
-        uses: ./.github/workflows/revoke-tokens.yml
-        with:
-          IDP_URL: ${{ env.IDP_URL }}
-          API_URL: ${{ env.API_URL }}
-          CLIENT_ID_TO_REVOKE: "snpsshift_sandi_dev"
-          TENANT_ID: "054db137-590f-4db0-9b35-5732a5a1d7d4"
+  revoke-tokens-sundi:
+    uses: ./.github/workflows/revoke-tokens.yml
+    with:
+      IDP_URL: ${{ env.IDP_URL }}
+      API_URL: ${{ env.API_URL }}
+      CLIENT_ID_TO_REVOKE: "snpsshift_sandi_dev"
+      TENANT_ID: "054db137-590f-4db0-9b35-5732a5a1d7d4"
