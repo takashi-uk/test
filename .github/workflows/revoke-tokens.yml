@@ -2,6 +2,9 @@ name: Revoke IDP Client Tokens
 
 on:
   workflow_call:
+    secrets:
+      IDP_CLIENT_SECRET_API:
+        required: true
     inputs:
       IDP_URL:
         required: true
