@@ -27,6 +27,19 @@ jobs:
           CLIENT_ID: ${{ secrets.IDP_CLIENT_ID_API }}
           CLIENT_SECRET: ${{ secrets.IDP_CLIENT_SECRET_API }}
         run: |
+          echo "IDP_URL: $IDP_URL"
+          echo "CLIENT_ID: $CLIENT_ID"
+          echo "CLIENT_SECRET: $CLIENT_SECRET"
+          RESPONSE=$(curl --location --request POST "$IDP_URL/connect/token" \
+            --header 'Content-Type: application/x-www-form-urlencoded' \
+            --data-urlencode 'grant_type=client_credentials' \
+            --data-urlencode 'scope=api.read IdentityServerApi' \
+            --data-urlencode "client_id=$CLIENT_ID" \
+            --data-urlencode "client_secret=$CLIENT_SECRET")
+
+          echo "Raw response:"
+          echo "$RESPONSE"
+
           TOKEN=$(curl --location --request POST "$IDP_URL/connect/token" \
             --header 'Content-Type: application/x-www-form-urlencoded' \
             --data-urlencode 'grant_type=client_credentials' \
