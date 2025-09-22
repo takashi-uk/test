@@ -1,50 +1,68 @@
-name: Revoke IDP Client Tokens
+name: Revoke all Dev Tokens
 
 on:
-  workflow_call:
-    inputs:
-      IDP_URL:
-        required: true
-        type: string
-      API_URL:
-        required: true
-        type: string
-      CLIENT_ID_TO_REVOKE:
-        required: true
-        type: string
-      TENANT_ID:
-        required: true
-        type: string
+  workflow_dispatch:
+
+env:
+  IDP_URL: "https://idpdev.teamlaika.com"
+  API_URL: "https://apidevk.teamlaika.com"
 
 jobs:
-  revoke-tokens:
+  call-revoke-tokens:
     runs-on: ubuntu-latest
     steps:
-      - name: Get IDP access token
-        id: get_token
-        env:
-          IDP_URL: ${{ inputs.IDP_URL }}
-          CLIENT_ID: ${{ secrets.IDP_CLIENT_ID_API }}
-          CLIENT_SECRET: ${{ secrets.IDP_CLIENT_SECRET_API }}
-        run: |
-          TOKEN=$(curl --location --request POST "$IDP_URL/connect/token" \
-            --header 'Content-Type: application/x-www-form-urlencoded' \
-            --data-urlencode 'grant_type=client_credentials' \
-            --data-urlencode 'scope=api.read IdentityServerApi' \
-            --data-urlencode "client_id=$CLIENT_ID" \
-            --data-urlencode "client_secret=$CLIENT_SECRET" | jq -r '.access_token')
+      - name: Revoke tokens for KuraSushi (app/private)
+        uses: ./.github/workflows/revoke_idp_tokens.yml
+        with:
+          IDP_URL: ${{ env.IDP_URL }}
+          API_URL: ${{ env.API_URL }}
+          CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_private"
+          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
 
-          echo "TOKEN: $TOKEN"
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+      - name: Revoke tokens for KuraSushi (app/public)
+        uses: ./.github/workflows/revoke_idp_tokens.yml
+        with:
+          IDP_URL: ${{ env.IDP_URL }}
+          API_URL: ${{ env.API_URL }}
+          CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_public"
+          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
 
-      - name: Revoke tokens for IDP client
-        env:
-          API_URL: ${{ inputs.API_URL }}
-          CLIENT_ID_TO_REVOKE: ${{ inputs.CLIENT_ID_TO_REVOKE }}
-          TENANT_ID: ${{ inputs.TENANT_ID }}
-          TOKEN: ${{ steps.get_token.outputs.token }}
-        run: |
-          curl --location --request POST "$API_URL/api/IdpClient/RevokeTokens" \
-            --header "client-id: $CLIENT_ID_TO_REVOKE" \
-            --header "tenant-id: $TENANT_ID" \
-            --header "Authorization: Bearer $TOKEN"
+      - name: Revoke tokens for KuraSushi (private)
+        uses: ./.github/workflows/revoke_idp_tokens.yml
+        with:
+          IDP_URL: ${{ env.IDP_URL }}
+          API_URL: ${{ env.API_URL }}
+          CLIENT_ID_TO_REVOKE: "kurasushi_dev_private"
+          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+
+      - name: Revoke tokens for KuraSushi (public)
+        uses: ./.github/workflows/revoke_idp_tokens.yml
+        with:
+          IDP_URL: ${{ env.IDP_URL }}
+          API_URL: ${{ env.API_URL }}
+          CLIENT_ID_TO_REVOKE: "kurasushi_dev_public"
+          TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+
+      - name: Revoke tokens for Bodywork
+        uses: ./.github/workflows/revoke_idp_tokens.yml
+        with:
+          IDP_URL: ${{ env.IDP_URL }}
+          API_URL: ${{ env.API_URL }}
+          CLIENT_ID_TO_REVOKE: "bodywork_dev"
+          TENANT_ID: "f506fd9c-b8be-4126-a249-350966258b99"
+
+      - name: Revoke tokens for PAL
+        uses: ./.github/workflows/revoke_idp_tokens.yml
+        with:
+          IDP_URL: ${{ env.IDP_URL }}
+          API_URL: ${{ env.API_URL }}
+          CLIENT_ID_TO_REVOKE: "snpsshift_pal_dev"
+          TENANT_ID: "7b2330b8-244e-41a3-bf6e-1355a53bb55e"
+
+      - name: Revoke tokens for Sundi
+        uses: ./.github/workflows/revoke_idp_tokens.yml
+        with:
+          IDP_URL: ${{ env.IDP_URL }}
+          API_URL: ${{ env.API_URL }}
+          CLIENT_ID_TO_REVOKE: "snpsshift_sandi_dev"
+          TENANT_ID: "054db137-590f-4db0-9b35-5732a5a1d7d4"
