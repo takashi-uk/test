@@ -71,5 +71,5 @@ jobs:
     with:
       IDP_URL: ${{ vars.IDP_DEV_URL }}
       API_URL: ${{ vars.API_DEV_URL }}
-      CLIENT_ID_TO_REVOKE: "snpsshift_sandi_dev"
+      CLIENT_ID_TO_REVOKE: "snpsshift_sundi_dev"
       TENANT_ID: ${{ vars.SUNDI_TENANT_ID }}
