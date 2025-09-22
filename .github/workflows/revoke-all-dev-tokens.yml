@@ -14,7 +14,7 @@ jobs:
       IDP_URL: ${{ env.IDP_URL }}
       API_URL: ${{ env.API_URL }}
       CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_private"
-      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+      TENANT_ID: ${{ vars.KURASUSHI_TENANT_ID }}
 
   revoke-tokens-app-public:
     uses: ./.github/workflows/revoke-tokens.yml
@@ -22,7 +22,7 @@ jobs:
       IDP_URL: ${{ env.IDP_URL }}
       API_URL: ${{ env.API_URL }}
       CLIENT_ID_TO_REVOKE: "kurasushi_dev_app_public"
-      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+      TENANT_ID: ${{ vars.KURASUSHI_TENANT_ID }}
 
   revoke-tokens-private:
     uses: ./.github/workflows/revoke-tokens.yml
@@ -30,7 +30,7 @@ jobs:
       IDP_URL: ${{ env.IDP_URL }}
       API_URL: ${{ env.API_URL }}
       CLIENT_ID_TO_REVOKE: "kurasushi_dev_private"
-      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+      TENANT_ID: ${{ vars.KURASUSHI_TENANT_ID }}
 
   revoke-tokens-public:
     uses: ./.github/workflows/revoke-tokens.yml
@@ -38,7 +38,7 @@ jobs:
       IDP_URL: ${{ env.IDP_URL }}
       API_URL: ${{ env.API_URL }}
       CLIENT_ID_TO_REVOKE: "kurasushi_dev_public"
-      TENANT_ID: "ca9768dd-de4f-4dab-a3ac-b5abd5749760"
+      TENANT_ID: ${{ vars.KURASUSHI_TENANT_ID }}
 
   revoke-tokens-bodywork:
     uses: ./.github/workflows/revoke-tokens.yml
@@ -46,7 +46,7 @@ jobs:
       IDP_URL: ${{ env.IDP_URL }}
       API_URL: ${{ env.API_URL }}
       CLIENT_ID_TO_REVOKE: "bodywork_dev"
-      TENANT_ID: "f506fd9c-b8be-4126-a249-350966258b99"
+      TENANT_ID: ${{ vars.BODYWORK_TENANT_ID }}
 
   revoke-tokens-pal:
     uses: ./.github/workflows/revoke-tokens.yml
@@ -54,7 +54,7 @@ jobs:
       IDP_URL: ${{ env.IDP_URL }}
       API_URL: ${{ env.API_URL }}
       CLIENT_ID_TO_REVOKE: "snpsshift_pal_dev"
-      TENANT_ID: "7b2330b8-244e-41a3-bf6e-1355a53bb55e"
+      TENANT_ID: ${{ vars.PAL_TENANT_ID }}
 
   revoke-tokens-sundi:
     uses: ./.github/workflows/revoke-tokens.yml
@@ -62,4 +62,4 @@ jobs:
       IDP_URL: ${{ env.IDP_URL }}
       API_URL: ${{ env.API_URL }}
       CLIENT_ID_TO_REVOKE: "snpsshift_sandi_dev"
-      TENANT_ID: "054db137-590f-4db0-9b35-5732a5a1d7d4"
+      TENANT_ID: ${{ vars.SUNDI_TENANT_ID }}
