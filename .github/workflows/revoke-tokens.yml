@@ -24,7 +24,7 @@ jobs:
         id: get_token
         env:
           IDP_URL: ${{ inputs.IDP_URL }}
-          CLIENT_ID: ${{ secrets.IDP_CLIENT_ID_API }}
+          CLIENT_ID: ${{ vars.IDP_CLIENT_ID_API }}
           CLIENT_SECRET: ${{ secrets.IDP_CLIENT_SECRET_API }}
         run: |
           echo "IDP_URL: $IDP_URL"
