@@ -1,0 +1,34 @@
+name: Test Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Create dummy .NET solution/project
+      run: |
+        dotnet new sln -n DummySolution
+        dotnet new classlib -n DummyProject
+        dotnet sln DummySolution.sln add DummyProject/DummyProject.csproj
+
+    - name: Restore Solution
+      run: dotnet restore DummySolution.sln
+
+    - name: Build Solution
+      run: dotnet build DummySolution.sln --configuration Release
+
+    - name: Create dummy test result
+      run: |
+        mkdir -p TestResults
+        echo "dummy test result" > TestResults/dummy.trx
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: ./TestResults/*.trx
