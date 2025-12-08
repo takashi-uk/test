@@ -1,34 +1,44 @@
-name: Test Workflow
+name: Postgres Localhost 接続検証
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: PostgreSQLクライアントインストール
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
 
-    - name: Create dummy .NET solution/project
-      run: |
-        dotnet new sln -n DummySolution
-        dotnet new classlib -n DummyProject
-        dotnet sln DummySolution.sln add DummyProject/DummyProject.csproj
+      - name: PostgreSQL準備完了まで待つ
+        run: |
+          for i in $(seq 1 30); do
+            pg_isready -h localhost -p 5432 -U postgres && break
+            echo "Waiting for Postgres to be ready..."
+            sleep 2
+          done
 
-    - name: Restore Solution
-      run: dotnet restore DummySolution.sln
+      - name: サンプルテーブル作成とデータ挿入
+        run: |
+          PGPASSWORD=password psql -h localhost -U postgres -d testdb -c "CREATE TABLE sample(id SERIAL PRIMARY KEY, name TEXT);"
+          PGPASSWORD=password psql -h localhost -U postgres -d testdb -c "INSERT INTO sample(name) VALUES('Hello Actions');"
 
-    - name: Build Solution
-      run: dotnet build DummySolution.sln --configuration Release
+      - name: データベースからSELECT
+        run: |
+          PGPASSWORD=password psql -h localhost -U postgres -d testdb -c "SELECT * FROM sample;"
 
-    - name: Create dummy test result
-      run: |
-        mkdir -p TestResults
-        echo "dummy test result" > TestResults/dummy.trx
-
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: ./TestResults/*.trx
+      - name: 接続文字列確認
+        run: |
+          echo "接続文字列例: Host=localhost;Port=5432;Database=testdb;Username=postgres;Password=password;SslMode=Disable;"
